@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/mattn/go-sqlite3"

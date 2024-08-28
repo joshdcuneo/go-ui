@@ -1,1 +1,0 @@
-Use `go run "$(go env GOROOT)/src/crypto/tls/generate_cert.go" --host localhost` to generate certificates in this directory for local use.
