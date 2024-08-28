@@ -13,10 +13,12 @@ RUN GOOS=linux go build -o /app/migrate ./cmd/migrate
 
 FROM golang:1.23.0
 
-COPY --from=builder /app/web /web
-COPY --from=builder /app/migrate /migrate
+WORKDIR /app
+
+COPY --from=builder /app/web /app/web
+COPY --from=builder /app/migrate /app/migrate
 
 EXPOSE 4000
 
-ENTRYPOINT ["/web"]
+ENTRYPOINT ["/app/web"]
 
