@@ -17,8 +17,9 @@ WORKDIR /app
 
 COPY --from=builder /app/web /app/web
 COPY --from=builder /app/migrate /app/migrate
+COPY --from=builder /app/docker/entrypoint.sh /app/entrypoint.sh
 
-EXPOSE 4000
+RUN chmod +x /app/entrypoint.sh
 
-ENTRYPOINT ["/app/web"]
+ENTRYPOINT ["./entrypoint.sh"]
 

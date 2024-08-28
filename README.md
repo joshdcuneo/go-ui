@@ -12,20 +12,24 @@ A simple Go boilerplate for building a server rendered web app.
 
 ## Docker
 
-```bash
+```sh
+export PORT=4000
+export DB="./db.sqlite"
+
 # Build
-docker build . --tag go-ui
+docker build . \
+--file ./docker/Dockerfile \
+--tag go-ui
 
 # Run migration commands
 docker run \
-  --publish 4000:4000 \
-  --volume $(pwd)/db.sqlite:/app/db.sqlite \
-  --entrypoint /app/migrate \
-  go-ui up
+--publish $PORT:$PORT \
+--volume $(pwd)/$DB:/app/$DB \
+go-ui migrate -database-dsn $DB up
 
 # Run the web server
 docker run \
-  --publish 4000:4000 \
-  --volume $(pwd)/db.sqlite:/app/db.sqlite \
-  go-ui
+--publish $PORT:$PORT \
+--volume $(pwd)/$DB:/app/$DB \
+go-ui web -addr ":$PORT" -database-dsn $DB
 ```

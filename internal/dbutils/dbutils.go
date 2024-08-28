@@ -3,10 +3,10 @@ package dbutils
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
 	"os"
-	"path/filepath"
-	"sort"
 
+	"github.com/joshdcuneo/go-ui/database"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -27,31 +27,9 @@ func NewDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func RunMigrations(db *sql.DB, migrationsDir string, callback ExecutionCallback) error {
-	files, err := filepath.Glob(filepath.Join(migrationsDir, "*.sql"))
-	if err != nil {
-		return err
-	}
+func MigrateDatabase(db *sql.DB, callback ExecutionCallback) error {
+	return executeGlob(db, "migrations/*.sql", callback)
 
-	sort.Strings(files)
-
-	for _, file := range files {
-		content, err := os.ReadFile(file)
-		if err != nil {
-			return err
-		}
-
-		_, err = db.Exec(string(content))
-		if err != nil {
-			return fmt.Errorf("error executing migration %s: %v", file, err)
-		}
-
-		if callback != nil {
-			callback(file)
-		}
-	}
-
-	return nil
 }
 
 func DropDatabase(dbPath string) error {
@@ -62,14 +40,18 @@ func DropDatabase(dbPath string) error {
 	return nil
 }
 
-func SeedDatabase(db *sql.DB, seedsDir string, callback ExecutionCallback) error {
-	files, err := filepath.Glob(filepath.Join(seedsDir, "*.sql"))
+func SeedDatabase(db *sql.DB, callback ExecutionCallback) error {
+	return executeGlob(db, "seeds/*.sql", callback)
+}
+
+func executeGlob(db *sql.DB, glob string, callback ExecutionCallback) error {
+	files, err := fs.Glob(database.EFS, glob)
 	if err != nil {
 		return err
 	}
 
 	for _, file := range files {
-		content, err := os.ReadFile(file)
+		content, err := fs.ReadFile(database.EFS, file)
 		if err != nil {
 			return err
 		}

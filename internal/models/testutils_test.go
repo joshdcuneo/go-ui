@@ -13,7 +13,7 @@ func newTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 
-	dbutils.RunMigrations(db, "./../../migrations", nil)
+	dbutils.MigrateDatabase(db, "./../../migrations", nil)
 
 	t.Cleanup(func() {
 		db.Close()
