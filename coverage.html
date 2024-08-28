@@ -1,0 +1,1125 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>migrate: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/joshdcuneo/go-ui/cmd/migrate/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/joshdcuneo/go-ui/cmd/web/auth.go (100.0%)</option>
+				
+				<option value="file2">github.com/joshdcuneo/go-ui/cmd/web/handlers.go (74.7%)</option>
+				
+				<option value="file3">github.com/joshdcuneo/go-ui/cmd/web/http.go (46.7%)</option>
+				
+				<option value="file4">github.com/joshdcuneo/go-ui/cmd/web/logger.go (0.0%)</option>
+				
+				<option value="file5">github.com/joshdcuneo/go-ui/cmd/web/main.go (0.0%)</option>
+				
+				<option value="file6">github.com/joshdcuneo/go-ui/cmd/web/middleware.go (80.4%)</option>
+				
+				<option value="file7">github.com/joshdcuneo/go-ui/cmd/web/routes.go (100.0%)</option>
+				
+				<option value="file8">github.com/joshdcuneo/go-ui/cmd/web/templates.go (87.5%)</option>
+				
+				<option value="file9">github.com/joshdcuneo/go-ui/internal/assert/assert.go (66.7%)</option>
+				
+				<option value="file10">github.com/joshdcuneo/go-ui/internal/dbutils/dbutils.go (32.6%)</option>
+				
+				<option value="file11">github.com/joshdcuneo/go-ui/internal/models/mocks/users.go (88.9%)</option>
+				
+				<option value="file12">github.com/joshdcuneo/go-ui/internal/models/users.go (86.7%)</option>
+				
+				<option value="file13">github.com/joshdcuneo/go-ui/internal/validator/validator.go (85.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "flag"
+        "fmt"
+        "log"
+
+        "github.com/joshdcuneo/go-ui/internal/dbutils"
+)
+
+var (
+        migrationsDir string
+        seedsDir      string
+        seed          bool
+        dbPath        string
+)
+
+func main() <span class="cov0" title="0">{
+        flag.StringVar(&amp;migrationsDir, "migrations-dir", "migrations", "Directory containing migration files")
+        flag.StringVar(&amp;seedsDir, "seeds-dir", "seeds", "Directory containing seed files")
+        flag.BoolVar(&amp;seed, "seed", false, "Run the seeders in addition to the action")
+        flag.StringVar(&amp;dbPath, "db", "db.sqlite", "Path to the SQLite database file")
+        flag.Parse()
+
+        if err := dbutils.EnsureDatabase(dbPath); err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        <span class="cov0" title="0">if flag.NArg() != 1 </span><span class="cov0" title="0">{
+                log.Fatal("Usage: go run cmd/migrate [flags] &lt;action&gt;")
+        }</span>
+
+        <span class="cov0" title="0">action := flag.Arg(0)
+
+        logExecution := func(filename string) </span><span class="cov0" title="0">{
+                fmt.Printf("\t%s\n", filename)
+        }</span>
+
+        <span class="cov0" title="0">switch action </span>{
+        case "up":<span class="cov0" title="0">
+                db, err := dbutils.NewDB(dbPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">defer db.Close()
+                fmt.Println("Running migrations...")
+                if err := dbutils.RunMigrations(db, migrationsDir, logExecution); err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">if seed </span><span class="cov0" title="0">{
+                        fmt.Println("Running seeds...")
+                        if err := dbutils.SeedDatabase(db, seedsDir, logExecution); err != nil </span><span class="cov0" title="0">{
+                                log.Fatal(err)
+                        }</span>
+                }
+        case "drop":<span class="cov0" title="0">
+                fmt.Println("Dropping database...")
+                if err := dbutils.DropDatabase(dbPath); err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+        case "fresh":<span class="cov0" title="0">
+                fmt.Println("Dropping database...")
+                if err := dbutils.DropDatabase(dbPath); err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">db, err := dbutils.NewDB(dbPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">defer db.Close()
+                fmt.Println("Running migrations...")
+                if err := dbutils.RunMigrations(db, migrationsDir, logExecution); err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">if seed </span><span class="cov0" title="0">{
+                        fmt.Println("Running seeds...")
+                        if err := dbutils.SeedDatabase(db, seedsDir, logExecution); err != nil </span><span class="cov0" title="0">{
+                                log.Fatal(err)
+                        }</span>
+                }
+        case "seed":<span class="cov0" title="0">
+                db, err := dbutils.NewDB(dbPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+                <span class="cov0" title="0">defer db.Close()
+                fmt.Println("Running seeds...")
+                if err := dbutils.SeedDatabase(db, seedsDir, logExecution); err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+        default:<span class="cov0" title="0">
+                log.Fatalf("Unknown action: %s", action)</span>
+        }
+
+        <span class="cov0" title="0">fmt.Println("Done!")</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import "net/http"
+
+func (app *application) isAuthenticated(r *http.Request) bool <span class="cov8" title="1">{
+        isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+        if !ok </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        <span class="cov8" title="1">return isAuthenticated</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "errors"
+        "net/http"
+
+        "github.com/joshdcuneo/go-ui/internal/models"
+        "github.com/joshdcuneo/go-ui/internal/validator"
+)
+
+func healthcheck(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Write([]byte("OK"))
+}</span>
+
+type userSignupForm struct {
+        Name     string
+        Email    string
+        Password string
+        validator.Validator
+}
+
+func (app *application) userSignup(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        data := app.newTemplateData(r)
+        data.Form = userSignupForm{}
+
+        app.render(w, r, http.StatusOK, "user-signup", data)
+}</span>
+
+func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        err := r.ParseForm()
+        if err != nil </span><span class="cov0" title="0">{
+                app.clientError(w, http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">form := userSignupForm{
+                Name:     r.PostForm.Get("name"),
+                Email:    r.PostForm.Get("email"),
+                Password: r.PostForm.Get("password"),
+        }
+
+        form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+        form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+        form.CheckField(validator.IsEmail(form.Email), "email", "This field must be a valid email address")
+        form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+        form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
+
+        if !form.Valid() </span><span class="cov8" title="1">{
+                data := app.newTemplateData(r)
+                data.Form = form
+                app.render(w, r, http.StatusUnprocessableEntity, "user-signup", data)
+                return
+        }</span>
+
+        <span class="cov8" title="1">err = app.users.Insert(form.Name, form.Email, form.Password)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, models.ErrDuplicateEmail) </span><span class="cov8" title="1">{
+                        form.AddFieldError("email", "Email address is already in use")
+                        data := app.newTemplateData(r)
+                        data.Form = form
+                        app.render(w, r, http.StatusUnprocessableEntity, "user-signup", data)
+                }</span> else<span class="cov0" title="0"> {
+                        app.serverError(w, r, err)
+                }</span>
+                <span class="cov8" title="1">return</span>
+        }
+
+        <span class="cov8" title="1">id, err := app.users.Authenticate(form.Email, form.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                app.serverError(w, r, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">err = app.sessionManager.RenewToken(r.Context())
+        if err != nil </span><span class="cov0" title="0">{
+                app.serverError(w, r, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+        app.sessionManager.Put(r.Context(), "flash", "Your signup was successful!")
+
+        http.Redirect(w, r, "/", http.StatusSeeOther)</span>
+}
+
+type userLoginForm struct {
+        Email    string
+        Password string
+        validator.Validator
+}
+
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        data := app.newTemplateData(r)
+        data.Form = userLoginForm{}
+
+        app.render(w, r, http.StatusOK, "user-login", data)
+}</span>
+
+func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        err := r.ParseForm()
+        if err != nil </span><span class="cov0" title="0">{
+                app.clientError(w, http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">form := userLoginForm{
+                Email:    r.PostForm.Get("email"),
+                Password: r.PostForm.Get("password"),
+        }
+
+        form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+        form.CheckField(validator.IsEmail(form.Email), "email", "This field must be a valid email address")
+        form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+        form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
+
+        id, err := app.users.Authenticate(form.Email, form.Password)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, models.ErrInvalidCredentials) </span><span class="cov8" title="1">{
+                        form.AddFormError("Email or password is incorrect")
+                        data := app.newTemplateData(r)
+                        data.Form = form
+                        app.render(w, r, http.StatusUnprocessableEntity, "user-login", data)
+                }</span> else<span class="cov0" title="0"> {
+                        app.serverError(w, r, err)
+                }</span>
+                <span class="cov8" title="1">return</span>
+        }
+
+        <span class="cov8" title="1">err = app.sessionManager.RenewToken(r.Context())
+        if err != nil </span><span class="cov0" title="0">{
+                app.serverError(w, r, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+        http.Redirect(w, r, "/home", http.StatusSeeOther)</span>
+}
+
+func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        err := app.sessionManager.RenewToken(r.Context())
+        if err != nil </span><span class="cov0" title="0">{
+                app.serverError(w, r, err)
+                return
+        }</span>
+
+        <span class="cov0" title="0">app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+        app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+
+        http.Redirect(w, r, "/", http.StatusSeeOther)</span>
+}
+
+func (app *application) home(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        data := app.newTemplateData(r)
+
+        app.render(w, r, http.StatusOK, "home", data)
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+import (
+        "bytes"
+        "fmt"
+        "log/slog"
+        "net/http"
+        "runtime/debug"
+)
+
+func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) <span class="cov0" title="0">{
+        var (
+                method = r.Method
+                uri    = r.URL.RequestURI()
+                trace  = string(debug.Stack())
+        )
+
+        app.logger.Error(err.Error(), slog.String("method", method), slog.String("uri", uri), slog.String("trace", trace))
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}</span>
+
+func (app *application) clientError(w http.ResponseWriter, status int) <span class="cov0" title="0">{
+        http.Error(w, http.StatusText(status), status)
+}</span>
+
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, name string, td templateData) <span class="cov8" title="1">{
+        ts, ok := app.templates[name]
+        if !ok </span><span class="cov0" title="0">{
+                app.serverError(w, r, fmt.Errorf("the template %s does not exist", name))
+                return
+        }</span>
+
+        <span class="cov8" title="1">buf := new(bytes.Buffer)
+
+        err := ts.ExecuteTemplate(buf, "base", td)
+        if err != nil </span><span class="cov0" title="0">{
+                app.serverError(w, r, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">w.WriteHeader(status)
+        buf.WriteTo(w)</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+
+import (
+        "log/slog"
+        "os"
+)
+
+func logLevel(cfg config) slog.Level <span class="cov0" title="0">{
+        switch cfg.logLevel </span>{
+        case "debug":<span class="cov0" title="0">
+                return slog.LevelDebug</span>
+        case "info":<span class="cov0" title="0">
+                return slog.LevelInfo</span>
+        case "warn":<span class="cov0" title="0">
+                return slog.LevelWarn</span>
+        case "error":<span class="cov0" title="0">
+                return slog.LevelError</span>
+        default:<span class="cov0" title="0">
+                return slog.LevelInfo</span>
+        }
+}
+
+func newLogger(cfg config) *slog.Logger <span class="cov0" title="0">{
+        opts := &amp;slog.HandlerOptions{
+                Level: logLevel(cfg),
+        }
+
+        switch cfg.logFormat </span>{
+        case "json":<span class="cov0" title="0">
+                return slog.New(slog.NewJSONHandler(os.Stdout, opts))</span>
+        default:<span class="cov0" title="0">
+                return slog.New(slog.NewTextHandler(os.Stdout, opts))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+
+import (
+        "crypto/tls"
+        "flag"
+        "html/template"
+        "log/slog"
+        "net/http"
+        "os"
+        "time"
+
+        "github.com/alexedwards/scs/sqlite3store"
+        "github.com/alexedwards/scs/v2"
+
+        "github.com/joshdcuneo/go-ui/internal/dbutils"
+        "github.com/joshdcuneo/go-ui/internal/models"
+        _ "github.com/mattn/go-sqlite3"
+)
+
+type config struct {
+        addr        string
+        staticDir   string
+        logFormat   string
+        logLevel    string
+        databaseDSN string
+}
+
+type application struct {
+        users          models.UserModelInterface
+        templates      map[string]*template.Template
+        sessionManager *scs.SessionManager
+        logger         *slog.Logger
+}
+
+func main() <span class="cov0" title="0">{
+
+        cfg := config{}
+        flag.StringVar(&amp;cfg.addr, "addr", ":4000", "HTTP network address")
+        flag.StringVar(&amp;cfg.staticDir, "static-dir", "./ui/static/", "Path to static assets")
+        flag.StringVar(&amp;cfg.logFormat, "log-format", "text", "Log format (text or json)")
+        flag.StringVar(&amp;cfg.databaseDSN, "database-dsn", "./db.sqlite", "Database DSN")
+        flag.Parse()
+
+        logger := newLogger(cfg)
+
+        db, err := dbutils.NewDB(cfg.databaseDSN)
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Error(err.Error())
+        }</span>
+        <span class="cov0" title="0">defer db.Close()
+
+        templates, err := newTemplateCache()
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Error(err.Error())
+        }</span>
+
+        <span class="cov0" title="0">sessionManager := scs.New()
+        sessionManager.Store = sqlite3store.New(db)
+        sessionManager.Lifetime = 12 * time.Hour
+        sessionManager.Cookie.SameSite = http.SameSiteLaxMode
+
+        app := &amp;application{
+                users:          &amp;models.UserModel{DB: db},
+                templates:      templates,
+                sessionManager: sessionManager,
+                logger:         logger,
+        }
+
+        tlsConfig := &amp;tls.Config{
+                CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+        }
+
+        srv := &amp;http.Server{
+                Addr:         cfg.addr,
+                Handler:      app.routes(),
+                ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+                TLSConfig:    tlsConfig,
+                IdleTimeout:  time.Minute,
+                ReadTimeout:  5 * time.Second,
+                WriteTimeout: 10 * time.Second,
+        }
+
+        logger.Info("starting server", slog.String("addr", cfg.addr))
+
+        err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+        logger.Error(err.Error())
+        os.Exit(1)</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package main
+
+import (
+        "context"
+        "fmt"
+        "log/slog"
+        "net/http"
+        "slices"
+
+        "github.com/justinas/nosurf"
+)
+
+type Middleware func(http.Handler) http.Handler
+
+type middlewareGroup struct {
+        middlewares []Middleware
+}
+
+func newMiddlewareGroup(middlewares ...Middleware) middlewareGroup <span class="cov8" title="1">{
+        slices.Reverse(middlewares)
+        return middlewareGroup{middlewares: middlewares}
+}</span>
+
+func (m *middlewareGroup) then(handler http.Handler) http.Handler <span class="cov8" title="1">{
+        for _, middleware := range m.middlewares </span><span class="cov8" title="1">{
+                handler = middleware(handler)
+        }</span>
+        <span class="cov8" title="1">return handler</span>
+}
+
+func (m *middlewareGroup) thenFunc(handler http.HandlerFunc) http.Handler <span class="cov8" title="1">{
+        return m.then(http.HandlerFunc(handler))
+}</span>
+
+func (m *middlewareGroup) append(middleware Middleware) *middlewareGroup <span class="cov8" title="1">{
+        m.middlewares = append([]Middleware{middleware}, m.middlewares...)
+        return m
+}</span>
+
+func commonHeaders(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                // TODO update for bunny
+                w.Header().Set("Content-Security-Policy",
+                        "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+
+                w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
+                w.Header().Set("X-Content-Type-Options", "nosniff")
+                w.Header().Set("X-Frame-Options", "deny")
+                w.Header().Set("X-XSS-Protection", "0")
+
+                w.Header().Set("Server", "Go")
+
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+
+func (app *application) logRequest(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                var (
+                        ip     = r.RemoteAddr
+                        proto  = r.Proto
+                        method = r.Method
+                        uri    = r.URL.RequestURI()
+                )
+
+                app.logger.Info("received request",
+                        slog.String("ip", ip),
+                        slog.String("proto", proto),
+                        slog.String("method", method),
+                        slog.String("uri", uri),
+                )
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+
+func (app *application) recoverPanic(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                defer func() </span><span class="cov8" title="1">{
+                        if rec := recover(); rec != nil </span><span class="cov0" title="0">{
+                                w.Header().Set("Connection", "close")
+                                app.serverError(w, r, fmt.Errorf("%s", rec))
+                        }</span>
+                }()
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+
+func (app *application) requireAuthentication(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                if !app.isAuthenticated(r) </span><span class="cov0" title="0">{
+                        http.Redirect(w, r, "/user/login", http.StatusFound)
+                }</span>
+
+                <span class="cov0" title="0">w.Header().Add("Cache-Control", "no-store")
+
+                next.ServeHTTP(w, r)</span>
+        })
+}
+
+func (app *application) preventCSRF(next http.Handler) http.Handler <span class="cov8" title="1">{
+        csrfHandler := nosurf.New(next)
+        csrfHandler.SetBaseCookie(http.Cookie{
+                HttpOnly: true,
+                Path:     "/",
+                Secure:   true,
+        })
+        return csrfHandler
+}</span>
+
+func (app *application) authenticate(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+                if id == 0 </span><span class="cov8" title="1">{
+                        next.ServeHTTP(w, r)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">exists, _ := app.users.Exists(id)
+                if !exists </span><span class="cov0" title="0">{
+                        app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+                        next.ServeHTTP(w, r)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+                next.ServeHTTP(w, r.WithContext(ctx))</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "net/http"
+
+        "github.com/joshdcuneo/go-ui/ui"
+)
+
+func (app *application) routes() http.Handler <span class="cov8" title="1">{
+        mux := http.NewServeMux()
+
+        mux.Handle("GET /static/", http.FileServerFS(ui.EFS))
+
+        mux.HandleFunc("GET /healthcheck", healthcheck)
+
+        webMiddleware := newMiddlewareGroup(app.sessionManager.LoadAndSave, app.preventCSRF, app.authenticate)
+
+        mux.Handle("GET /user/signup", webMiddleware.thenFunc(app.userSignup))
+        mux.Handle("POST /user/signup", webMiddleware.thenFunc(app.userSignupPost))
+        mux.Handle("GET /user/login", webMiddleware.thenFunc(app.userLogin))
+        mux.Handle("POST /user/login", webMiddleware.thenFunc(app.userLoginPost))
+        mux.Handle("GET /{$}", webMiddleware.thenFunc(app.home))
+
+        authMiddleware := webMiddleware.append(app.requireAuthentication)
+
+        mux.Handle("POST /user/logout", authMiddleware.thenFunc(app.userLogoutPost))
+
+        globalMiddleware := newMiddlewareGroup(app.recoverPanic, app.logRequest, commonHeaders)
+        return globalMiddleware.then(mux)
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package main
+
+import (
+        "html/template"
+        "io/fs"
+        "net/http"
+        "path/filepath"
+        "strings"
+        "time"
+
+        "github.com/joshdcuneo/go-ui/ui"
+        "github.com/justinas/nosurf"
+)
+
+type templateData struct {
+        CurrentYear     int
+        Form            any
+        Flash           string
+        IsAuthenticated bool
+        CSRFToken       string
+}
+
+func (app *application) newTemplateData(r *http.Request) templateData <span class="cov8" title="1">{
+        return templateData{
+                CurrentYear:     time.Now().Year(),
+                Flash:           app.sessionManager.PopString(r.Context(), "flash"),
+                IsAuthenticated: app.isAuthenticated(r),
+                CSRFToken:       nosurf.Token(r),
+        }
+}</span>
+
+func humanDate(t time.Time) string <span class="cov8" title="1">{
+        if t.IsZero() </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">return t.UTC().Format("02 Jan 2006 at 15:04")</span>
+}
+
+var functions = template.FuncMap{
+        "humanDate": humanDate,
+}
+
+func newTemplateCache() (map[string]*template.Template, error) <span class="cov8" title="1">{
+        cache := make(map[string]*template.Template)
+
+        pages, err := fs.Glob(ui.EFS, "html/pages/*.html")
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">for _, page := range pages </span><span class="cov8" title="1">{
+                name := strings.TrimSuffix(filepath.Base(page), filepath.Ext(page))
+
+                patterns := []string{
+                        "html/base.html",
+                        "html/partials/*.html",
+                        page,
+                }
+
+                ts, err := template.New(name).Funcs(functions).ParseFS(ui.EFS, patterns...)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">cache[name] = ts</span>
+        }
+
+        <span class="cov8" title="1">return cache, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package assert
+
+import (
+        "strings"
+        "testing"
+)
+
+func Equal[T comparable](t *testing.T, actual, expected T) <span class="cov8" title="1">{
+        t.Helper()
+        if actual != expected </span><span class="cov0" title="0">{
+                t.Errorf("actual %v; expected %v", actual, expected)
+        }</span>
+}
+
+func StringContains(t *testing.T, actual, expected string) <span class="cov8" title="1">{
+        t.Helper()
+        if !strings.Contains(actual, expected) </span><span class="cov0" title="0">{
+                t.Errorf("actual %v; expected %v", actual, expected)
+        }</span>
+}
+
+func NilError(t *testing.T, actual error) <span class="cov8" title="1">{
+        t.Helper()
+        if actual != nil </span><span class="cov0" title="0">{
+                t.Errorf("actual %v; expected nil", actual)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package dbutils
+
+import (
+        "database/sql"
+        "fmt"
+        "os"
+        "path/filepath"
+        "sort"
+
+        _ "github.com/mattn/go-sqlite3"
+)
+
+type ExecutionCallback func(filename string)
+
+func NewDB(dsn string) (*sql.DB, error) <span class="cov8" title="1">{
+        db, err := sql.Open("sqlite3", dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">err = db.Ping()
+        if err != nil </span><span class="cov0" title="0">{
+                db.Close()
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return db, nil</span>
+}
+
+func RunMigrations(db *sql.DB, migrationsDir string, callback ExecutionCallback) error <span class="cov8" title="1">{
+        files, err := filepath.Glob(filepath.Join(migrationsDir, "*.sql"))
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">sort.Strings(files)
+
+        for _, file := range files </span><span class="cov8" title="1">{
+                content, err := os.ReadFile(file)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">_, err = db.Exec(string(content))
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("error executing migration %s: %v", file, err)
+                }</span>
+
+                <span class="cov8" title="1">if callback != nil </span><span class="cov0" title="0">{
+                        callback(file)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func DropDatabase(dbPath string) error <span class="cov0" title="0">{
+        err := os.Remove(dbPath)
+        if err != nil &amp;&amp; !os.IsNotExist(err) </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func SeedDatabase(db *sql.DB, seedsDir string, callback ExecutionCallback) error <span class="cov0" title="0">{
+        files, err := filepath.Glob(filepath.Join(seedsDir, "*.sql"))
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">for _, file := range files </span><span class="cov0" title="0">{
+                content, err := os.ReadFile(file)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov0" title="0">_, err = db.Exec(string(content))
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("error executing seed %s: %v", file, err)
+                }</span>
+
+                <span class="cov0" title="0">if callback != nil </span><span class="cov0" title="0">{
+                        callback(file)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func EnsureDatabase(dbPath string) error <span class="cov0" title="0">{
+        if _, err := os.Stat(dbPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                file, err := os.Create(dbPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("error creating database file: %v", err)
+                }</span>
+                <span class="cov0" title="0">file.Close()
+                fmt.Printf("Created database file: %s\n", dbPath)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package mocks
+
+import "github.com/joshdcuneo/go-ui/internal/models"
+
+type UserModel struct{}
+
+const (
+        DuplicateUserEmail = "dupe@example.com"
+        ValidUserEmail     = "valid@example.com"
+        ValidUserPassword  = "validPa$$word"
+)
+
+func (m *UserModel) Insert(name, email, password string) error <span class="cov8" title="1">{
+        switch email </span>{
+        case DuplicateUserEmail:<span class="cov8" title="1">
+                return models.ErrDuplicateEmail</span>
+        default:<span class="cov8" title="1">
+                return nil</span>
+        }
+}
+
+func (m *UserModel) Authenticate(email, password string) (int, error) <span class="cov8" title="1">{
+        if email == ValidUserEmail &amp;&amp; password == ValidUserPassword </span><span class="cov8" title="1">{
+                return 1, nil
+        }</span>
+
+        <span class="cov8" title="1">return 0, models.ErrInvalidCredentials</span>
+}
+
+func (m *UserModel) Exists(id int) (bool, error) <span class="cov8" title="1">{
+        switch id </span>{
+        case 1:<span class="cov8" title="1">
+                return true, nil</span>
+        default:<span class="cov0" title="0">
+                return false, nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package models
+
+import (
+        "database/sql"
+        "errors"
+        "time"
+
+        "github.com/mattn/go-sqlite3"
+        "golang.org/x/crypto/bcrypt"
+)
+
+type User struct {
+        ID             int
+        Name           string
+        Email          string
+        HashedPassword []byte
+        Created        time.Time
+}
+
+type UserModelInterface interface {
+        Insert(name, email, password string) error
+        Authenticate(email, password string) (int, error)
+        Exists(id int) (bool, error)
+}
+
+type UserModel struct {
+        DB *sql.DB
+}
+
+func (m *UserModel) Insert(name, email, password string) error <span class="cov8" title="1">{
+        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">stmt := `INSERT INTO users (name, email, hashed_password, created)
+        VALUES(?, ?, ?, CURRENT_TIMESTAMP)`
+
+        _, err = m.DB.Exec(stmt, name, email, hashedPassword)
+        if err != nil </span><span class="cov8" title="1">{
+                var sqliteError sqlite3.Error
+                if errors.As(err, &amp;sqliteError) </span><span class="cov8" title="1">{
+                        if sqliteError.Code == sqlite3.ErrConstraint &amp;&amp; sqliteError.ExtendedCode == sqlite3.ErrConstraintUnique </span><span class="cov8" title="1">{
+                                return ErrDuplicateEmail
+                        }</span>
+                }
+                <span class="cov0" title="0">return err</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (m *UserModel) Authenticate(email, password string) (int, error) <span class="cov8" title="1">{
+        var id int
+        var hashedPassword []byte
+
+        stmt := "SELECT id, hashed_password FROM users WHERE email = ?"
+        err := m.DB.QueryRow(stmt, email).Scan(&amp;id, &amp;hashedPassword)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov8" title="1">{
+                        return 0, ErrInvalidCredentials
+                }</span> else<span class="cov0" title="0"> {
+                        return 0, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) </span><span class="cov8" title="1">{
+                        return 0, ErrInvalidCredentials
+                }</span> else<span class="cov0" title="0"> {
+                        return 0, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">return id, nil</span>
+}
+
+func (m *UserModel) Exists(id int) (bool, error) <span class="cov8" title="1">{
+        var exists bool
+        stmt := "SELECT EXISTS(SELECT true FROM users WHERE id = ?)"
+
+        err := m.DB.QueryRow(stmt, id).Scan(&amp;exists)
+        return exists, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package validator
+
+import (
+        "regexp"
+        "slices"
+        "strings"
+        "unicode/utf8"
+)
+
+type Validator struct {
+        FieldErrors map[string]string
+        FormErrors  []string
+}
+
+func (v *Validator) Valid() bool <span class="cov8" title="1">{
+        return len(v.FieldErrors) == 0 &amp;&amp; len(v.FormErrors) == 0
+}</span>
+
+func (v *Validator) AddFieldError(key, message string) <span class="cov8" title="1">{
+        if v.FieldErrors == nil </span><span class="cov8" title="1">{
+                v.FieldErrors = make(map[string]string)
+        }</span>
+
+        <span class="cov8" title="1">if _, exists := v.FieldErrors[key]; !exists </span><span class="cov8" title="1">{
+                v.FieldErrors[key] = message
+        }</span>
+}
+
+func (v *Validator) AddFormError(message string) <span class="cov8" title="1">{
+        v.FormErrors = append(v.FormErrors, message)
+}</span>
+
+func (v *Validator) CheckField(ok bool, key, message string) <span class="cov8" title="1">{
+        if !ok </span><span class="cov8" title="1">{
+                v.AddFieldError(key, message)
+        }</span>
+}
+
+func NotBlank(value string) bool <span class="cov8" title="1">{
+        return strings.TrimSpace(value) != ""
+}</span>
+
+func MinChars(value string, n int) bool <span class="cov8" title="1">{
+        return utf8.RuneCountInString(value) &gt;= n
+}</span>
+
+func MaxChars(value string, n int) bool <span class="cov0" title="0">{
+        return utf8.RuneCountInString(value) &lt;= n
+}</span>
+
+func PermittedValue[T comparable](value T, permittedValues ...T) bool <span class="cov0" title="0">{
+        return slices.Contains(permittedValues, value)
+}</span>
+
+var emailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&amp;'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+func Matches(value string, rx *regexp.Regexp) bool <span class="cov8" title="1">{
+        return rx.MatchString(value)
+}</span>
+
+func IsEmail(value string) bool <span class="cov8" title="1">{
+        return Matches(value, emailRX)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
